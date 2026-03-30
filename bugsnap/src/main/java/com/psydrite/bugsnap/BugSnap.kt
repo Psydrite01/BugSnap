@@ -1,7 +1,9 @@
 package com.psydrite.bugsnap
 
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -9,17 +11,36 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 object BugSnap {
 
-    private var isInitialized = false
+    private var _isInitialized = false
+    private var _projectKey = ""
+    private var _collectionName = "BugSnap"
+    private var shakeDetector: ShakeDetector? = null
 
-    fun init(apiKey: String) {
-        isInitialized = true
-        Log.d("BugSnap", "Initialized with key: $apiKey")
+    fun init(context: Context, projectKey: String, collectionName: String = _collectionName) {
+        _projectKey = projectKey
+        _collectionName = collectionName
+        _isInitialized = true
 
-        sendData()
+        shakeDetector = ShakeDetector(context) {
+            // called when shake is detected
+            Toast.makeText(context, "Shake detected", Toast.LENGTH_SHORT).show()
+            // later: captureScreenshot() + sendData()
+        }
+        shakeDetector?.start()
+
+        Log.d("BugSnap", "Initialized with key: $projectKey")
     }
 
-    fun sendData() {
-        val url = "https://firestore.googleapis.com/v1/projects/task-manger-database/databases/(default)/documents/BugSnap"
+    fun stop() {
+        shakeDetector?.stop()
+    }
+
+    fun sendData(context: Context) {
+        if (!_isInitialized){
+            Toast.makeText(context, "BugSnap is not initialized!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val url = "https://firestore.googleapis.com/v1/projects/task-manger-database/databases/(default)/documents/${BugSnap}"
 
         val json = """
         {
@@ -48,7 +69,7 @@ object BugSnap {
     }
 
     private fun checkInit() {
-        if (!isInitialized) {
+        if (!_isInitialized) {
             throw IllegalStateException("BugSnap not initialized")
         }
     }
