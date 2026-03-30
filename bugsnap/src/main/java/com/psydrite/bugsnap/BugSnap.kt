@@ -1,6 +1,7 @@
 package com.psydrite.bugsnap
 
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -8,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.lang.ref.WeakReference
 
 object BugSnap {
 
@@ -15,6 +17,7 @@ object BugSnap {
     private var _projectKey = ""
     private var _collectionName = "BugSnap"
     private var shakeDetector: ShakeDetector? = null
+    private var activityRef: WeakReference<Activity>? = null
 
     fun init(context: Context, projectKey: String, collectionName: String = _collectionName) {
         _projectKey = projectKey
@@ -22,13 +25,35 @@ object BugSnap {
         _isInitialized = true
 
         shakeDetector = ShakeDetector(context) {
-            // called when shake is detected
             Toast.makeText(context, "Shake detected", Toast.LENGTH_SHORT).show()
-            // later: captureScreenshot() + sendData()
+            captureAndSend(context)
         }
         shakeDetector?.start()
 
         Log.d("BugSnap", "Initialized with key: $projectKey")
+    }
+
+    private fun captureAndSend(context: Context) {
+        val activity = activityRef?.get()                      // ← unwrap safely
+        if (activity == null || activity.isFinishing) return   // ← guard if already dead
+
+        ScreenshotCapture.capture(activity) { bitmap ->
+            if (bitmap != null) {
+                Log.d("BugSnap", "Screenshot captured: ${bitmap.width}x${bitmap.height}")
+                StorageUploader.uploadScreenshot(
+                    bitmap = bitmap,
+                    onSuccess = { downloadUrl ->
+                        android.util.Log.d("BugSnap", "Uploaded: $downloadUrl")
+                        Toast.makeText(context, "Successfully uploaded", Toast.LENGTH_LONG).show()
+                        // next: send downloadUrl to Firestore
+                    },
+                    onFailure = { e ->
+                        Toast.makeText(context, "Upload failed: $e", Toast.LENGTH_LONG).show()
+                        android.util.Log.e("BugSnap", "Upload failed: ${e.message}")
+                    }
+                )
+            }
+        }
     }
 
     fun stop() {

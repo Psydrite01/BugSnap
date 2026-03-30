@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BugSnapSDKTestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BugSnap.init(this, "projectKey")
+                    BugSnap.init(this, "lofigram-df368")
                     Greeting(
                         name = ", this is a test app for BugSnap SDK",
                         modifier = Modifier.padding(innerPadding)
