@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             BugSnapSDKTestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = ", this is a test app for BugSnap SDK",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

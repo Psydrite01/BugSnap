@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BugSnap SDK Test"
 include(":app")
- 
+include(":bugsnap")
