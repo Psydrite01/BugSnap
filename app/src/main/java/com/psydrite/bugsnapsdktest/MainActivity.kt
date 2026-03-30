@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.psydrite.bugsnap.BugSnap
 import com.psydrite.bugsnapsdktest.ui.theme.BugSnapSDKTestTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,6 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BugSnapSDKTestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    BugSnap.init("this is an api key")
                     Greeting(
                         name = ", this is a test app for BugSnap SDK",
                         modifier = Modifier.padding(innerPadding)
