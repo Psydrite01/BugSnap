@@ -19,40 +19,36 @@ object BugSnap {
     private var shakeDetector: ShakeDetector? = null
     private var activityRef: WeakReference<Activity>? = null
 
-    fun init(context: Context, projectKey: String, collectionName: String = _collectionName) {
+    fun init(activity: Activity, projectKey: String, collectionName: String = _collectionName) {
         _projectKey = projectKey
         _collectionName = collectionName
         _isInitialized = true
 
-        shakeDetector = ShakeDetector(context) {
-            Toast.makeText(context, "Shake detected", Toast.LENGTH_SHORT).show()
-            captureAndSend(context)
+        activityRef = WeakReference(activity)
+        shakeDetector = ShakeDetector(activity) {
+//            Toast.makeText(context, "Shake detected", Toast.LENGTH_SHORT).show()
+            Log.d("BugSnap", "shake is detected")
+            captureAndSend()
         }
         shakeDetector?.start()
 
         Log.d("BugSnap", "Initialized with key: $projectKey")
     }
 
-    private fun captureAndSend(context: Context) {
-        val activity = activityRef?.get()                      // ← unwrap safely
-        if (activity == null || activity.isFinishing) return   // ← guard if already dead
+    private fun captureAndSend() {
+        val activity = activityRef?.get()
+        if (activity == null || activity.isFinishing){
+//            Toast.makeText(context, "activity is null, or finishing", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         ScreenshotCapture.capture(activity) { bitmap ->
             if (bitmap != null) {
-                Log.d("BugSnap", "Screenshot captured: ${bitmap.width}x${bitmap.height}")
-                StorageUploader.uploadScreenshot(
-                    bitmap = bitmap,
-                    onSuccess = { downloadUrl ->
-                        android.util.Log.d("BugSnap", "Uploaded: $downloadUrl")
-                        Toast.makeText(context, "Successfully uploaded", Toast.LENGTH_LONG).show()
-                        // next: send downloadUrl to Firestore
-                    },
-                    onFailure = { e ->
-                        Toast.makeText(context, "Upload failed: $e", Toast.LENGTH_LONG).show()
-                        android.util.Log.e("BugSnap", "Upload failed: ${e.message}")
-                    }
-                )
+//                Toast.makeText(context, "Screenshot captured, preparing to send", Toast.LENGTH_SHORT).show()
+                bugSnapBitmap = bitmap   // ← set state
+                bugSnapVisible = true    // ← dialog reacts automatically
             }
+//            Toast.makeText(context, "bitmap is null", Toast.LENGTH_SHORT).show()
         }
     }
 

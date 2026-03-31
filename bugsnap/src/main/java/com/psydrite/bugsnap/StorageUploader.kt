@@ -64,3 +64,27 @@ object StorageUploader {
         }.start()
     }
 }
+
+
+internal object BugSnapReporter {
+
+    fun sendToFirestore(downloadUrl: String, description: String) {
+        val json = """
+            {
+              "fields": {
+                "screenshotUrl": { "stringValue": "$downloadUrl" },
+                "description":   { "stringValue": "$description" },
+                "timestamp":     { "integerValue": "${System.currentTimeMillis()}" }
+              }
+            }
+        """.trimIndent()
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("https://firestore.googleapis.com/v1/projects/lofigram-df368/databases/(default)/documents/BugReports")
+            .post(json.toRequestBody("application/json".toMediaType()))
+            .build()
+
+        Thread { client.newCall(request).execute() }.start()
+    }
+}

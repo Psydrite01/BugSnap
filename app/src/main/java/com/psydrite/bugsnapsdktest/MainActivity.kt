@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.psydrite.bugsnap.BugSnap
+import com.psydrite.bugsnap.BugSnapOverlay
 import com.psydrite.bugsnapsdktest.ui.theme.BugSnapSDKTestTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
             BugSnapSDKTestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     BugSnap.init(this, "lofigram-df368")
+                    BugSnapOverlay()
                     Greeting(
                         name = ", this is a test app for BugSnap SDK",
                         modifier = Modifier.padding(innerPadding)

@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import java.lang.ref.WeakReference
 import kotlin.math.sqrt
 
 class ShakeDetector(
@@ -12,8 +13,10 @@ class ShakeDetector(
     private val onShakeDetected: () -> Unit
 ) : SensorEventListener {
 
-    private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private val contextRef = WeakReference(context)
+    private val sensorManager: SensorManager?
+        get() = contextRef.get()?.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+    private val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     // tuning constants
     private val SHAKE_THRESHOLD = 25f        // m/s² — increase if too sensitive
@@ -26,12 +29,12 @@ class ShakeDetector(
 
     fun start() {
         accelerometer?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
         }
     }
 
     fun stop() {
-        sensorManager.unregisterListener(this)
+        sensorManager?.unregisterListener(this)
     }
 
     override fun onSensorChanged(event: SensorEvent) {
