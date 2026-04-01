@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BugSnapSDKTestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BugSnap.init(this, "lofigram-df368")
+                    BugSnap.init(this, "lofigram-df368", "lofigram-df368.firebasestorage.app")
                     BugSnapOverlay()
                     Greeting(
                         name = ", this is a test app for BugSnap SDK",

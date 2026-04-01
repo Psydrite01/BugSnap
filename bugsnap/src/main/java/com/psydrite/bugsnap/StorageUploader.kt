@@ -11,8 +11,18 @@ import java.io.ByteArrayOutputStream
 object StorageUploader {
 
     private val client = OkHttpClient()
-    private const val BUCKET = "lofigram-df368.firebasestorage.app"
-    private const val PROJECT_ID = "lofigram-df368"
+    private var _IsInitialized = false
+    private var _STORAGE_ID = ""
+    private var _PROJECT_ID = ""
+    private var _COLLECTIONNAME = ""
+
+    fun init(projectid: String, storageid: String, collectionname: String){
+        _PROJECT_ID = projectid
+        _STORAGE_ID = storageid
+        _COLLECTIONNAME = collectionname
+
+        _IsInitialized = true
+    }
 
     fun uploadScreenshot(
         bitmap: Bitmap,
@@ -21,16 +31,19 @@ object StorageUploader {
     ) {
         Thread {
             try {
+                if (!_IsInitialized){
+                    return@Thread
+                }
                 // 1. compress bitmap to JPEG bytes
                 val stream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
                 val imageBytes = stream.toByteArray()
 
                 // 2. unique filename using timestamp
-                val fileName = "bugsnap/screenshot_${System.currentTimeMillis()}.jpg"
+                val fileName = "$_COLLECTIONNAME/screenshot_${System.currentTimeMillis()}.jpg"
 
                 // 3. upload to Firebase Storage REST API
-                val uploadUrl = "https://firebasestorage.googleapis.com/v0/b/$BUCKET/o/${
+                val uploadUrl = "https://firebasestorage.googleapis.com/v0/b/$_STORAGE_ID/o/${
                     fileName.replace("/", "%2F")
                 }"
 
@@ -52,7 +65,7 @@ object StorageUploader {
                 val token = json.getString("downloadTokens")
 
                 // 5. build public download URL
-                val downloadUrl = "https://firebasestorage.googleapis.com/v0/b/$BUCKET/o/${
+                val downloadUrl = "https://firebasestorage.googleapis.com/v0/b/$_STORAGE_ID/o/${
                     fileName.replace("/", "%2F")
                 }?alt=media&token=$token"
 
@@ -67,6 +80,16 @@ object StorageUploader {
 
 
 internal object BugSnapReporter {
+    private var _IsInitialized = false
+    private var _PROJECT_ID = ""
+    private var _COLLECTIONNAME = ""
+
+    fun init(projectid: String, collectionname: String){
+        _PROJECT_ID = projectid
+        _COLLECTIONNAME = collectionname
+
+        _IsInitialized = true
+    }
 
     fun sendToFirestore(downloadUrl: String, description: String) {
         val json = """
@@ -81,7 +104,7 @@ internal object BugSnapReporter {
 
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://firestore.googleapis.com/v1/projects/lofigram-df368/databases/(default)/documents/BugReports")
+            .url("https://firestore.googleapis.com/v1/projects/$_PROJECT_ID/databases/(default)/documents/$_COLLECTIONNAME")
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()
 
