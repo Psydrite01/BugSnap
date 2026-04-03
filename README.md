@@ -1,10 +1,22 @@
 # BugSnap - In-App Bug Reporting SDK for Android
 
+> **Important:** BugSnap currently **only supports Firebase** as the backend for storing bug reports. Support for other providers may be added in the future.
+
 BugSnap is a lightweight Android SDK that enables in-app bug reporting with screenshots. When users shake their device, BugSnap captures a screenshot, prompts them to describe the issue, and uploads the report to your Firebase project.
 
 ![Min SDK](https://img.shields.io/badge/min%20SDK-26-blue)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple)
 ![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## Demo
+
+### Bug Report Dialog
+![BugSnap UI](screenshots/ui.jpeg)
+
+### Project Structure
+![Project Structure](screenshots/structure.png)
 
 ---
 
@@ -42,6 +54,8 @@ dependencies {
     implementation("com.github.Psydrite01:BugSnap:1.0.0")
 }
 ```
+
+![Import Example](screenshots/import.png)
 
 ### 3. Sync your project
 
@@ -119,6 +133,8 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
+![onDestroy Cleanup](screenshots/ondestroy.png)
+
 ### Where to Get Credentials
 
 | Parameter | Description | Where to Find |
@@ -150,7 +166,7 @@ class MainActivity : ComponentActivity() {
 
 ## Firebase Security Rules
 
-If BugSnap is not uploading reports, check your Firebase Security Rules.
+> **If BugSnap is not uploading reports, check your Firebase Security Rules.**
 
 ### Storage Rules (test mode)
 
