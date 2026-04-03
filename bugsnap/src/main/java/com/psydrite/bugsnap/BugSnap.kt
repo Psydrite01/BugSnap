@@ -24,7 +24,7 @@ object BugSnap {
         activity: Activity,
         projectKey: String,
         FBstorageUrl: String,
-        ApiKey: String,
+        ApiKey: String = "",
         collectionName: String = _collectionName
     ) {
         if (_isInitialized){
