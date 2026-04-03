@@ -2,6 +2,20 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("maven-publish")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.psydrite"
+                artifactId = "bugsnap"
+                version = "1.0.0"
+            }
+        }
+    }
 }
 
 android {
