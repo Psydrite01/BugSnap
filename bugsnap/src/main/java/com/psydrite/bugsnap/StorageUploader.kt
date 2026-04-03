@@ -12,13 +12,15 @@ object StorageUploader {
 
     private val client = OkHttpClient()
     private var _IsInitialized = false
+    private var _API_KEY = ""
     private var _STORAGE_ID = ""
     private var _PROJECT_ID = ""
     private var _COLLECTIONNAME = ""
 
-    fun init(projectid: String, storageid: String, collectionname: String){
+    fun init(projectid: String, storageid: String, apikey: String, collectionname: String){
         _PROJECT_ID = projectid
         _STORAGE_ID = storageid
+        _API_KEY = apikey
         _COLLECTIONNAME = collectionname
 
         _IsInitialized = true
@@ -45,7 +47,7 @@ object StorageUploader {
                 // 3. upload to Firebase Storage REST API
                 val uploadUrl = "https://firebasestorage.googleapis.com/v0/b/$_STORAGE_ID/o/${
                     fileName.replace("/", "%2F")
-                }"
+                }?key=$_API_KEY"
 
                 val uploadRequest = Request.Builder()
                     .url(uploadUrl)
@@ -82,10 +84,12 @@ object StorageUploader {
 internal object BugSnapReporter {
     private var _IsInitialized = false
     private var _PROJECT_ID = ""
+    private var _API_KEY = ""
     private var _COLLECTIONNAME = ""
 
-    fun init(projectid: String, collectionname: String){
+    fun init(projectid: String, apikey: String, collectionname: String){
         _PROJECT_ID = projectid
+        _API_KEY = apikey
         _COLLECTIONNAME = collectionname
 
         _IsInitialized = true
@@ -104,7 +108,7 @@ internal object BugSnapReporter {
 
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://firestore.googleapis.com/v1/projects/$_PROJECT_ID/databases/(default)/documents/$_COLLECTIONNAME")
+            .url("https://firestore.googleapis.com/v1/projects/$_PROJECT_ID/databases/(default)/documents/$_COLLECTIONNAME?key=$_API_KEY")
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()
 

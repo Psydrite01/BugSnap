@@ -1,6 +1,7 @@
 package com.psydrite.bugsnap
 
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +27,7 @@ internal var bugSnapVisible by mutableStateOf(false)
 fun BugSnapOverlay() {
     var description by remember { mutableStateOf("") }
     var isUploading by remember { mutableStateOf(false) }
+    var finishMessage by remember { mutableStateOf("") }
 
     if (bugSnapVisible && bugSnapBitmap != null) {
         AlertDialog(
@@ -77,6 +80,7 @@ fun BugSnapOverlay() {
                                 StorageUploader.uploadScreenshot(
                                     bitmap = bmp,
                                     onSuccess = { downloadUrl ->
+                                        finishMessage = "Uploaded Successfully"
                                         BugSnapReporter.sendToFirestore(downloadUrl, description)
                                         bugSnapVisible = false
                                         bugSnapBitmap = null
@@ -84,6 +88,7 @@ fun BugSnapOverlay() {
                                         description = ""
                                     },
                                     onFailure = {
+                                        finishMessage = "Upload failed, try again"
                                         isUploading = false
                                     }
                                 )
@@ -121,7 +126,14 @@ fun BugSnapOverlay() {
                                     strokeWidth = 2.dp,
                                     color = Color.White
                                 )
-                            } else {
+                            } else if (finishMessage.isNotEmpty()) {
+                                Text(
+                                    finishMessage,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+                            else{
                                 Text(
                                     "Send Report",
                                     fontWeight = FontWeight.Bold,

@@ -22,7 +22,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             BugSnapSDKTestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BugSnap.init(this, "lofigram-df368", "lofigram-df368.firebasestorage.app")
+                    BugSnap.init(
+                        activity = this,
+                        projectKey = "",             //from firebase project
+                        FBstorageUrl = "",           //from firebase storage
+                        ApiKey = "",                 //from firebase project
+                        collectionName = "BugSnap")  //optional
                     BugSnapOverlay()
                     Greeting(
                         name = ", this is a test app for BugSnap SDK",
@@ -31,6 +36,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        BugSnap.stop()      //stop the shake detector
     }
 }
 

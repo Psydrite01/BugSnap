@@ -14,6 +14,7 @@ import java.lang.ref.WeakReference
 object BugSnap {
 
     private var _isInitialized = false
+    private var _API_KEY = ""
     private var _projectKey = ""
     private var _collectionName = "BugSnap"
     private var shakeDetector: ShakeDetector? = null
@@ -23,6 +24,7 @@ object BugSnap {
         activity: Activity,
         projectKey: String,
         FBstorageUrl: String,
+        ApiKey: String,
         collectionName: String = _collectionName
     ) {
         if (_isInitialized){
@@ -30,10 +32,11 @@ object BugSnap {
         }
         _projectKey = projectKey
         _collectionName = collectionName
+        _API_KEY = ApiKey
         _isInitialized = true
 
-        StorageUploader.init(projectKey, FBstorageUrl, _collectionName)
-        BugSnapReporter.init(projectKey, _collectionName)
+        StorageUploader.init(projectKey, FBstorageUrl, _API_KEY,_collectionName)
+        BugSnapReporter.init(projectKey, _API_KEY, _collectionName)
 
         activityRef = WeakReference(activity)
         shakeDetector = ShakeDetector(activity) {
@@ -42,6 +45,14 @@ object BugSnap {
         shakeDetector?.start()
 
         Log.d("BugSnap", "Initialized with key: $projectKey")
+    }
+
+    fun stop(){
+        shakeDetector?.stop()
+        shakeDetector = null
+        activityRef?.clear()
+        activityRef = null
+        _isInitialized = false
     }
 
     private fun captureAndSend() {
